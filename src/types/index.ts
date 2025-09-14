@@ -16,7 +16,7 @@ export interface TaskList {
 
 export interface EditorBlock {
   id: string;
-  type: 'text' | 'heading1' | 'heading2' | 'heading3' | 'bullet' | 'numbered' | 'checklist' | 'toggle' | 'code' | 'quote' | 'link' | 'image' | 'video' | 'gif';
+  type: 'text' | 'heading1' | 'heading2' | 'heading3' | 'bullet' | 'numbered' | 'checklist' | 'toggle' | 'code' | 'quote' | 'link' | 'image' | 'video' | 'gif' | 'highlight' | 'divider';
   content: string;
   checked?: boolean; // for checklists
   collapsed?: boolean; // for toggle lists

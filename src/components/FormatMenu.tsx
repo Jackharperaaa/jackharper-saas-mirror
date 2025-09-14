@@ -51,7 +51,11 @@ export const FormatMenu = ({ onSelect, onClose }: FormatMenuProps) => {
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
-      className="absolute top-12 left-0 z-50 bg-popover border border-border rounded-lg shadow-lg p-2 grid grid-cols-3 gap-1 min-w-[500px]"
+      className="fixed top-20 left-4 right-4 z-[100] bg-popover border border-border rounded-lg shadow-xl p-2 grid grid-cols-3 gap-1 max-w-[500px] mx-auto"
+      style={{
+        maxHeight: 'calc(100vh - 6rem)',
+        overflowY: 'auto'
+      }}
     >
       {formatOptions.map((option) => {
         const Icon = option.icon;
