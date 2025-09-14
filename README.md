@@ -1,73 +1,96 @@
-# Welcome to your Lovable project
+# Mind Notes - AI-Powered Productivity App
 
-## Project info
+A modern Chrome Extension + PWA for organizing thoughts and tasks with AI assistance and gamification.
 
-**URL**: https://lovable.dev/projects/e52b4bd5-b4be-4f0a-98d4-bff6d909e7e9
+## Features
 
-## How can I edit this code?
+### 🧠 Core Functionality
+- **Task Management**: Create, organize, and track task lists
+- **AI Assistant**: Get help organizing thoughts with OpenRouter AI integration
+- **Level System**: Earn XP and level up by completing tasks
+- **Local Storage**: All data saved locally for privacy
 
-There are several ways of editing your application.
+### 🎨 Design
+- **Dark Carbon Theme**: Modern, developer-friendly dark interface
+- **Smooth Animations**: Framer Motion powered transitions
+- **Responsive**: Works on desktop and mobile devices
+- **Minimalist UI**: Clean, focused design for productivity
 
-**Use Lovable**
+### 📱 Multi-Platform
+- **Chrome Extension**: Install as a browser extension (Manifest V3)
+- **Progressive Web App**: Install on mobile devices without app stores
+- **Cross-Platform**: Works on Windows, Mac, Linux, iOS, Android
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/e52b4bd5-b4be-4f0a-98d4-bff6d909e7e9) and start prompting.
+## Installation
 
-Changes made via Lovable will be committed automatically to this repo.
+### As Chrome Extension
+1. Clone this repository
+2. Run `npm install` and `npm run build`
+3. Open Chrome and go to `chrome://extensions/`
+4. Enable "Developer mode"
+5. Click "Load unpacked" and select the `dist` folder
 
-**Use your preferred IDE**
+### As PWA (Mobile)
+1. Visit the deployed app URL
+2. Look for "Add to Home Screen" prompt
+3. Install and use like a native app
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## Development
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+```bash
+# Install dependencies
+npm install
 
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Start development server
 npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
 ```
 
-**Edit a file directly in GitHub**
+## Tech Stack
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- **Frontend**: React + TypeScript + Vite
+- **Styling**: Tailwind CSS + shadcn/ui
+- **Animations**: Framer Motion
+- **Storage**: localStorage
+- **AI**: OpenRouter API (DeepSeek Chat)
+- **PWA**: Service Worker + Web App Manifest
+- **Chrome Extension**: Manifest V3
 
-**Use GitHub Codespaces**
+## Usage
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Notes Section
+1. Click "Create" to add new task lists
+2. Add multiple tasks to each list
+3. Check off completed tasks
+4. Complete all tasks to gain XP and level up
 
-## What technologies are used for this project?
+### AI Chat Section
+1. Ask the AI to help organize your thoughts
+2. Use suggested prompts or type your own
+3. AI will create structured task lists for you
+4. Lists automatically appear in the Notes section
 
-This project is built with:
+### Level System
+- Earn XP by completing task lists
+- Level up with visual celebrations
+- Track progress with the circular indicator
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Privacy
 
-## How can I deploy this project?
+All data is stored locally in your browser. No personal information is sent to external servers except for AI chat requests to OpenRouter.
 
-Simply open [Lovable](https://lovable.dev/projects/e52b4bd5-b4be-4f0a-98d4-bff6d909e7e9) and click on Share -> Publish.
+## Contributing
 
-## Can I connect a custom domain to my Lovable project?
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
 
-Yes, you can!
+## License
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+MIT License - feel free to use and modify as needed.
