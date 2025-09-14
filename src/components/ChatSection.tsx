@@ -66,7 +66,7 @@ export const ChatSection = ({ onCreateTaskListFromAI }: ChatSectionProps) => {
           "messages": [
             {
               "role": "system",
-              "content": "You are a productivity assistant. When users ask for task lists, respond ONLY with:\n\nTITLE: [Short, clear title]\nVIDEO: [YouTube URL if relevant, otherwise omit this line]\nTASKS:\n1. [Specific actionable task]\n2. [Specific actionable task]\n3. [Specific actionable task]\n4. [Specific actionable task]\n5. [Specific actionable task]\n\nNo extra text, explanations, or symbols. Keep tasks concrete and actionable. Maximum 8 tasks. Only include VIDEO line if user specifically mentions YouTube videos or you're recommending relevant educational content."
+              "content": "Você é um assistente de produtividade. Responda em português brasileiro. Quando os usuários pedirem listas de tarefas, responda APENAS com:\n\nTITULO: [Título curto e claro]\nVIDEO: [URL do YouTube se relevante, caso contrário omita esta linha]\nTAREFAS:\n1. [Tarefa específica e acionável]\n2. [Tarefa específica e acionável]\n3. [Tarefa específica e acionável]\n4. [Tarefa específica e acionável]\n5. [Tarefa específica e acionável]\n\nSem texto extra, explicações ou símbolos. Mantenha as tarefas concretas e acionáveis. Máximo 8 tarefas. Inclua a linha VIDEO apenas se o usuário mencionar especificamente vídeos do YouTube ou se você estiver recomendando conteúdo educacional relevante."
             },
             {
               "role": "user",
@@ -77,7 +77,18 @@ export const ChatSection = ({ onCreateTaskListFromAI }: ChatSectionProps) => {
       });
 
       if (!response.ok) {
-        throw new Error(`API request failed: ${response.status}`);
+        const errorText = await response.text();
+        console.error(`API Error ${response.status}:`, errorText);
+        
+        if (response.status === 401) {
+          throw new Error("Chave da API inválida ou expirada. Verifique suas credenciais.");
+        } else if (response.status === 429) {
+          throw new Error("Muitas requisições. Tente novamente em alguns segundos.");
+        } else if (response.status >= 500) {
+          throw new Error("Erro no servidor da API. Tente novamente mais tarde.");
+        } else {
+          throw new Error(`Erro na API: ${response.status} - ${errorText}`);
+        }
       }
 
       const data = await response.json();
@@ -141,10 +152,24 @@ export const ChatSection = ({ onCreateTaskListFromAI }: ChatSectionProps) => {
 
     } catch (error) {
       console.error('Chat API error:', error);
+      let errorContent = "Desculpe, ocorreu um erro na conexão com a API. Tente novamente em alguns instantes.";
+      
+      if (error instanceof Error) {
+        if (error.message.includes("Chave da API")) {
+          errorContent = "❌ Problema com a chave da API. Entre em contato com o administrador.";
+        } else if (error.message.includes("Muitas requisições")) {
+          errorContent = "⏳ Muitas requisições seguidas. Aguarde alguns segundos e tente novamente.";
+        } else if (error.message.includes("servidor da API")) {
+          errorContent = "🔧 Serviço temporariamente indisponível. Tente novamente em alguns minutos.";
+        } else {
+          errorContent = `❌ Erro de conexão: ${error.message}`;
+        }
+      }
+      
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: 'bot',
-        content: t('connectionError'),
+        content: errorContent,
         timestamp: new Date(),
       };
       setMessages(prev => [...prev, errorMessage]);
