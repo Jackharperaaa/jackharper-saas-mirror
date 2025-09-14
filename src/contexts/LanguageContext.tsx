@@ -311,7 +311,31 @@ const translations = {
     suggestion1: 'Criar uma lista de tarefas sobre hábitos de produtividade diários',
     suggestion2: 'Construir uma rotina de estudos para aprender programação',
     suggestion3: 'Organizar minha rotina matinal para melhor foco',
-    suggestion4: 'Planejar uma programação de exercícios para esta semana'
+    suggestion4: 'Planejar uma programação de exercícios para esta semana',
+    chooseNoteType: 'Escolher Tipo de Nota',
+    emptyNote: 'VAZIA',
+    emptyNoteDesc: 'Bloco de notas livre para escrever',
+    createChecklist: 'LISTA',
+    createChecklistDesc: 'Lista de tarefas estruturada',
+    save: 'Salvar',
+    cancel: 'Cancelar',
+    add: 'Adicionar',
+    normalText: 'Texto normal',
+    largeHeading: 'Título grande',
+    mediumHeading: 'Título médio',
+    smallHeading: 'Título pequeno',
+    createSubpage: 'Criar subpágina',
+    insertIntoPage: 'Inserir na página',
+    bulletList: 'Lista com marcadores',
+    numberedList: 'Lista numerada',
+    taskList: 'Lista de tarefas',
+    toggleList: 'Lista recolhível',
+    codeBlock: 'Bloco de código',
+    highlightedQuote: 'Citação destacada',
+    insertDivider: 'Inserir divisor',
+    highlightBlock: 'Bloco destacado',
+    textColors: 'Cores de texto',
+    close: 'Fechar'
   },
   fr: {
     notes: 'NOTES',
@@ -443,7 +467,7 @@ interface LanguageProviderProps {
 }
 
 export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
-  const [language, setLanguage] = useState<Language>('en');
+  const [language, setLanguage] = useState<Language>('pt');
 
   const t = (key: string): string => {
     return translations[language][key as keyof typeof translations[typeof language]] || key;
