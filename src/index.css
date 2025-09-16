@@ -39,10 +39,11 @@
 
     --radius: 0.5rem;
 
-    /* Success states - subtle white/gray */
-    --success: 120 100% 40%;
-    --success-foreground: 0 0% 100%;
-    --success-glow: 120 100% 85%;
+    /* Success states - subtle discrete green */
+    --success: 120 30% 25%;
+    --success-foreground: 0 0% 95%;
+    --success-glow: 120 20% 88%;
+    --success-border: 0 0% 92%;
 
     /* Level system - minimal */
     --level-bg: 0 0% 15%;

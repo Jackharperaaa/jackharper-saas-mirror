@@ -24,7 +24,7 @@ export const TaskItem = ({ task, onToggle, onDelete, allTasksCompleted = false }
           w-4 h-4 rounded-sm border flex items-center justify-center transition-all duration-200
           ${task.completed 
             ? allTasksCompleted 
-              ? 'bg-success border-success text-success-foreground' 
+              ? 'bg-success border-success-border text-success-foreground' 
               : 'bg-primary border-primary text-primary-foreground'
             : 'border-muted-foreground hover:border-foreground'
           }
