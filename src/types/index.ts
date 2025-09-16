@@ -12,6 +12,7 @@ export interface TaskList {
   createdAt: Date;
   completedAt?: Date;
   videoUrl?: string;
+  startedAt?: Date; // Track when user started working on tasks
 }
 
 export interface EditorBlock {

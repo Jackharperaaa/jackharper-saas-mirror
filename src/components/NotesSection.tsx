@@ -21,7 +21,7 @@ interface NotesSectionProps {
   onToggleTask: (listId: string, taskId: string) => void;
   onDeleteTask: (listId: string, taskId: string) => void;
   onDeleteList: (listId: string) => void;
-  onTaskListComplete: (listId: string) => void;
+  onTaskListComplete: (listId: string, completionTimeMinutes: number) => void;
 }
 
 export const NotesSection = ({
@@ -297,7 +297,7 @@ export const NotesSection = ({
               onToggleTask={(taskId) => onToggleTask(taskList.id, taskId)}
               onDeleteTask={(taskId) => onDeleteTask(taskList.id, taskId)}
               onDeleteList={() => onDeleteList(taskList.id)}
-              onComplete={() => onTaskListComplete(taskList.id)}
+              onComplete={(completionTimeMinutes) => onTaskListComplete(taskList.id, completionTimeMinutes)}
               isMinimized={minimizedNotes.has(taskList.id)}
               onToggleMinimize={() => toggleNoteMinimize(taskList.id)}
             />

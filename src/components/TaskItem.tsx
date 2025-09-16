@@ -6,9 +6,10 @@ interface TaskItemProps {
   task: Task;
   onToggle: (taskId: string) => void;
   onDelete: (taskId: string) => void;
+  allTasksCompleted?: boolean;
 }
 
-export const TaskItem = ({ task, onToggle, onDelete }: TaskItemProps) => {
+export const TaskItem = ({ task, onToggle, onDelete, allTasksCompleted = false }: TaskItemProps) => {
   return (
     <motion.div
       className="flex items-center gap-3 p-3 bg-secondary rounded-md border border-border group hover:bg-accent transition-colors"
@@ -22,7 +23,9 @@ export const TaskItem = ({ task, onToggle, onDelete }: TaskItemProps) => {
         className={`
           w-4 h-4 rounded-sm border flex items-center justify-center transition-all duration-200
           ${task.completed 
-            ? 'bg-primary border-primary text-primary-foreground' 
+            ? allTasksCompleted 
+              ? 'bg-success border-success text-success-foreground' 
+              : 'bg-primary border-primary text-primary-foreground'
             : 'border-muted-foreground hover:border-foreground'
           }
         `}

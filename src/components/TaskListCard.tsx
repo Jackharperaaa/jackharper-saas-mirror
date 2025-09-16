@@ -10,7 +10,7 @@ interface TaskListCardProps {
   onToggleTask: (taskId: string) => void;
   onDeleteTask: (taskId: string) => void;
   onDeleteList: (listId: string) => void;
-  onComplete?: () => void;
+  onComplete?: (completionTimeMinutes: number) => void;
   isMinimized?: boolean;
   onToggleMinimize?: () => void;
 }
@@ -34,16 +34,22 @@ export const TaskListCard = ({
   useEffect(() => {
     if (isFullyCompleted && !isCompleted && !taskList.completedAt) {
       setIsCompleted(true);
-      onComplete?.();
+      
+      // Calculate completion time in minutes
+      const startTime = taskList.startedAt || taskList.createdAt;
+      const completionTime = new Date();
+      const completionTimeMinutes = Math.round((completionTime.getTime() - startTime.getTime()) / (1000 * 60));
+      
+      onComplete?.(completionTimeMinutes);
     }
-  }, [isFullyCompleted, isCompleted, taskList.completedAt, onComplete]);
+  }, [isFullyCompleted, isCompleted, taskList.completedAt, taskList.startedAt, taskList.createdAt, onComplete]);
 
   return (
     <motion.div
-      className={`
+        className={`
         bg-gradient-card border border-border rounded-lg p-5 shadow-card
         transition-all duration-300 relative
-        ${isFullyCompleted ? 'border-primary shadow-focus' : ''}
+        ${isFullyCompleted ? 'border-success shadow-[0_0_20px_hsl(var(--success-glow)/0.4)]' : ''}
       `}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
@@ -77,7 +83,7 @@ export const TaskListCard = ({
             <div className="flex-1 bg-muted rounded-full h-1.5 overflow-hidden">
               <motion.div
                 className={`h-full transition-all duration-500 ${
-                  isFullyCompleted ? 'bg-primary' : 'bg-muted-foreground'
+                  isFullyCompleted ? 'bg-success' : 'bg-muted-foreground'
                 }`}
                 initial={{ width: 0 }}
                 animate={{ width: `${progressPercentage}%` }}
@@ -85,7 +91,7 @@ export const TaskListCard = ({
               />
             </div>
             <span className={`text-xs font-medium ${
-              isFullyCompleted ? 'text-primary' : 'text-muted-foreground'
+              isFullyCompleted ? 'text-success' : 'text-muted-foreground'
             }`}>
               {completedTasks}/{totalTasks}
             </span>
@@ -135,6 +141,7 @@ export const TaskListCard = ({
                   task={task}
                   onToggle={onToggleTask}
                   onDelete={onDeleteTask}
+                  allTasksCompleted={isFullyCompleted}
                 />
               ))}
             </AnimatePresence>

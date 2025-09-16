@@ -68,6 +68,8 @@ export const MindNotesApp = () => {
         list.id === listId
           ? {
               ...list,
+              // Set startedAt when first task is being worked on
+              startedAt: list.startedAt || new Date(),
               tasks: list.tasks.map(task =>
                 task.id === taskId
                   ? { ...task, completed: !task.completed }
@@ -100,11 +102,11 @@ export const MindNotesApp = () => {
     }));
   };
 
-  const completeTaskList = (listId: string) => {
+  const completeTaskList = (listId: string, completionTimeMinutes: number) => {
     const taskList = appState.taskLists.find(list => list.id === listId);
     if (!taskList || taskList.completedAt) return;
 
-    const xpGained = getExperienceForTaskListCompletion(taskList.tasks.length);
+    const xpGained = getExperienceForTaskListCompletion(taskList.tasks.length, completionTimeMinutes);
     const previousLevel = appState.userProgress.level;
     const newProgress = addExperience(appState.userProgress, xpGained);
     
@@ -206,10 +208,6 @@ export const MindNotesApp = () => {
           
           <div className="flex items-center gap-3">
             <LanguageSelector />
-            <LevelIndicator 
-              userProgress={safeAppState.userProgress} 
-              showLevelUp={showLevelUp}
-            />
           </div>
         </div>
 
@@ -246,6 +244,12 @@ export const MindNotesApp = () => {
               )}
             </motion.div>
           </AnimatePresence>
+          
+          {/* Level Indicator - Fixed Position */}
+          <LevelIndicator 
+            userProgress={safeAppState.userProgress} 
+            showLevelUp={showLevelUp}
+          />
         </div>
       </div>
     </div>
