@@ -49,7 +49,7 @@ export const TaskListCard = ({
         className={`
         bg-gradient-card border border-border rounded-lg p-5 shadow-card
         transition-all duration-300 relative
-        ${isFullyCompleted ? 'border-success shadow-[0_0_20px_hsl(var(--success-glow)/0.4)]' : ''}
+        ${isFullyCompleted ? 'border-success-border shadow-[0_0_20px_hsl(var(--success-neon))]' : ''}
       `}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}

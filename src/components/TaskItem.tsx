@@ -21,26 +21,26 @@ export const TaskItem = ({ task, onToggle, onDelete, allTasksCompleted = false }
       <motion.button
         onClick={() => onToggle(task.id)}
         className={`
-          w-4 h-4 rounded-sm border flex items-center justify-center transition-all duration-200
+          w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all duration-300 relative
           ${task.completed 
             ? allTasksCompleted 
-              ? 'bg-success border-success-border text-success-foreground' 
+              ? 'bg-success border-success text-success-foreground shadow-[0_0_10px_hsl(var(--success-neon))] scale-105' 
               : 'bg-primary border-primary text-primary-foreground'
-            : 'border-muted-foreground hover:border-foreground'
+            : 'border-muted-foreground hover:border-foreground hover:shadow-[0_0_5px_hsl(var(--foreground)/0.1)]'
           }
         `}
-        whileHover={{ scale: 1.05 }}
+        whileHover={{ scale: task.completed ? 1.05 : 1.1 }}
         whileTap={{ scale: 0.95 }}
       >
         <AnimatePresence>
           {task.completed && (
             <motion.div
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0, opacity: 0 }}
-              transition={{ duration: 0.15 }}
+              initial={{ scale: 0, opacity: 0, rotate: -180 }}
+              animate={{ scale: 1, opacity: 1, rotate: 0 }}
+              exit={{ scale: 0, opacity: 0, rotate: 180 }}
+              transition={{ duration: 0.3, ease: "backOut" }}
             >
-              <Check className="w-3 h-3" />
+              <Check className="w-3.5 h-3.5" strokeWidth={3} />
             </motion.div>
           )}
         </AnimatePresence>
