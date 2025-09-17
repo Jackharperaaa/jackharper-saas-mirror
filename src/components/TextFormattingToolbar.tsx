@@ -161,17 +161,30 @@ export const TextFormattingToolbar = ({ onFormat, visible, position = { x: 0, y:
                 <Palette className="h-4 w-4" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-2" side="bottom">
-              <div className="grid grid-cols-4 gap-1">
-                {colors.map((color) => (
-                  <button
-                    key={color.name}
-                    className="w-6 h-6 rounded border hover:scale-110 transition-transform"
-                    style={{ backgroundColor: color.value === 'inherit' ? '#666' : color.value }}
-                    onClick={() => applyFormat('color', color.value)}
-                    title={color.name}
+            <PopoverContent className="w-auto p-3" side="bottom" align="start">
+              <div className="space-y-3">
+                <div className="text-sm font-medium">Escolha uma cor</div>
+                <div className="grid grid-cols-4 gap-2">
+                  {colors.map((color) => (
+                    <button
+                      key={color.name}
+                      className="w-8 h-8 rounded-md border-2 border-border hover:border-primary hover:scale-105 transition-all duration-200 flex items-center justify-center"
+                      style={{ backgroundColor: color.value === 'inherit' ? 'currentColor' : color.value }}
+                      onClick={() => applyFormat('color', color.value)}
+                      title={color.name}
+                    >
+                      {color.value === 'inherit' && <span className="text-xs">A</span>}
+                    </button>
+                  ))}
+                </div>
+                <div className="pt-2 border-t">
+                  <input
+                    type="color"
+                    className="w-full h-8 rounded border cursor-pointer"
+                    onChange={(e) => applyFormat('color', e.target.value)}
+                    title="Escolher cor personalizada"
                   />
-                ))}
+                </div>
               </div>
             </PopoverContent>
           </Popover>

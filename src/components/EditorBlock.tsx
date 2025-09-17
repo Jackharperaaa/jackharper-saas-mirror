@@ -69,6 +69,7 @@ export const EditorBlock = ({
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
+      e.stopPropagation();
       if (block.type === 'numbered' || block.type === 'bullet' || block.type === 'checklist') {
         onAddBlock(index + 1, block.type);
       } else {
@@ -76,81 +77,15 @@ export const EditorBlock = ({
       }
     } else if (e.key === 'Backspace' && block.content === '') {
       e.preventDefault();
+      e.stopPropagation();
       onDelete(index);
     }
   };
 
   const handleFormat = (format: string, value?: string) => {
-    const activeElement = inputRef.current;
-    if (!activeElement) return;
-
-    // Get selection from textarea/input
-    const start = activeElement.selectionStart || 0;
-    const end = activeElement.selectionEnd || 0;
-    
-    if (start === end) return; // No selection
-
-    const selectedText = block.content.substring(start, end);
-    let formattedText = selectedText;
-    
-    switch (format) {
-      case 'bold':
-        formattedText = `**${selectedText}**`;
-        break;
-      case 'italic':
-        formattedText = `*${selectedText}*`;
-        break;
-      case 'underline':
-        formattedText = `<u>${selectedText}</u>`;
-        break;
-      case 'strikethrough':
-        formattedText = `~~${selectedText}~~`;
-        break;
-      case 'code':
-        formattedText = `\`${selectedText}\``;
-        break;
-      case 'superscript':
-        formattedText = `<sup>${selectedText}</sup>`;
-        break;
-      case 'subscript':
-        formattedText = `<sub>${selectedText}</sub>`;
-        break;
-      case 'color':
-        formattedText = `<span style="color: ${value}">${selectedText}</span>`;
-        break;
-      case 'highlight':
-        formattedText = value === 'transparent' 
-          ? selectedText 
-          : `<mark style="background-color: ${value}">${selectedText}</mark>`;
-        break;
-      case 'link':
-        formattedText = `[${selectedText}](${value})`;
-        break;
-      case 'comment':
-        formattedText = `${selectedText}<!-- ${value} -->`;
-        break;
-      default:
-        formattedText = selectedText;
-    }
-
-    // Replace selected text with formatted text
-    const newContent = block.content.substring(0, start) + 
-                      formattedText + 
-                      block.content.substring(end);
-    
-    updateContent(newContent);
-    
-    // Clear selection and hide toolbar
+    // This function is now handled by the TextFormattingToolbar directly using execCommand
+    // We keep it for backward compatibility but the toolbar handles formatting directly
     setShowToolbar(false);
-    
-    // Set cursor position after the formatted text
-    setTimeout(() => {
-      if (activeElement) {
-        const newCursorPos = start + formattedText.length;
-        activeElement.setSelectionRange(newCursorPos, newCursorPos);
-        activeElement.focus();
-      }
-    }, 0);
   };
 
   const renderContent = () => {
@@ -239,43 +174,205 @@ export const EditorBlock = ({
     switch (block.type) {
       case 'heading1':
         return (
-          <input
-            ref={inputRef as React.RefObject<HTMLInputElement>}
-            type="text"
-            value={block.content}
-            onChange={(e) => updateContent(e.target.value)}
-            onKeyDown={handleKeyDown}
-            className={cn(baseClasses, "text-3xl font-bold text-foreground", getStyleClasses())}
-            placeholder="Heading 1"
-            {...commonProps}
+          <div
+            ref={inputRef as React.RefObject<HTMLDivElement>}
+            contentEditable
+            suppressContentEditableWarning
+            onInput={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              const target = e.target as HTMLDivElement;
+              updateContent(target.innerHTML);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                e.stopPropagation();
+                onAddBlock(index + 1, 'text');
+              } else if (e.key === 'Backspace' && (e.target as HTMLDivElement).innerHTML === '') {
+                e.preventDefault();
+                e.stopPropagation();
+                onDelete(index);
+              }
+            }}
+            className={cn(baseClasses, "text-3xl font-bold text-foreground min-h-[48px] outline-none border border-transparent focus:border-border rounded p-2", getStyleClasses())}
+            dangerouslySetInnerHTML={{ __html: block.content || '' }}
+            data-placeholder="Heading 1"
+            {...{
+              onMouseUp: () => {
+                setTimeout(() => {
+                  const selection = window.getSelection();
+                  if (selection && selection.rangeCount > 0) {
+                    const range = selection.getRangeAt(0);
+                    const hasSelection = !range.collapsed;
+                    setShowToolbar(hasSelection);
+                    if (hasSelection) {
+                      const rect = range.getBoundingClientRect();
+                      setToolbarPosition({
+                        x: rect.left + window.scrollX - 50,
+                        y: rect.top + window.scrollY - 50
+                      });
+                    }
+                  }
+                }, 0);
+              },
+              onKeyUp: () => {
+                setTimeout(() => {
+                  const selection = window.getSelection();
+                  if (selection && selection.rangeCount > 0) {
+                    const range = selection.getRangeAt(0);
+                    const hasSelection = !range.collapsed;
+                    setShowToolbar(hasSelection);
+                    if (hasSelection) {
+                      const rect = range.getBoundingClientRect();
+                      setToolbarPosition({
+                        x: rect.left + window.scrollX - 50,
+                        y: rect.top + window.scrollY - 50
+                      });
+                    }
+                  }
+                }, 0);
+              },
+              onBlur: () => {
+                setTimeout(() => setShowToolbar(false), 200);
+              }
+            }}
           />
         );
       
       case 'heading2':
         return (
-          <input
-            ref={inputRef as React.RefObject<HTMLInputElement>}
-            type="text"
-            value={block.content}
-            onChange={(e) => updateContent(e.target.value)}
-            onKeyDown={handleKeyDown}
-            className={cn(baseClasses, "text-2xl font-semibold text-foreground", getStyleClasses())}
-            placeholder="Heading 2"
-            {...commonProps}
+          <div
+            ref={inputRef as React.RefObject<HTMLDivElement>}
+            contentEditable
+            suppressContentEditableWarning
+            onInput={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              const target = e.target as HTMLDivElement;
+              updateContent(target.innerHTML);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                e.stopPropagation();
+                onAddBlock(index + 1, 'text');
+              } else if (e.key === 'Backspace' && (e.target as HTMLDivElement).innerHTML === '') {
+                e.preventDefault();
+                e.stopPropagation();
+                onDelete(index);
+              }
+            }}
+            className={cn(baseClasses, "text-2xl font-semibold text-foreground min-h-[40px] outline-none border border-transparent focus:border-border rounded p-2", getStyleClasses())}
+            dangerouslySetInnerHTML={{ __html: block.content || '' }}
+            data-placeholder="Heading 2"
+            {...{
+              onMouseUp: () => {
+                setTimeout(() => {
+                  const selection = window.getSelection();
+                  if (selection && selection.rangeCount > 0) {
+                    const range = selection.getRangeAt(0);
+                    const hasSelection = !range.collapsed;
+                    setShowToolbar(hasSelection);
+                    if (hasSelection) {
+                      const rect = range.getBoundingClientRect();
+                      setToolbarPosition({
+                        x: rect.left + window.scrollX - 50,
+                        y: rect.top + window.scrollY - 50
+                      });
+                    }
+                  }
+                }, 0);
+              },
+              onKeyUp: () => {
+                setTimeout(() => {
+                  const selection = window.getSelection();
+                  if (selection && selection.rangeCount > 0) {
+                    const range = selection.getRangeAt(0);
+                    const hasSelection = !range.collapsed;
+                    setShowToolbar(hasSelection);
+                    if (hasSelection) {
+                      const rect = range.getBoundingClientRect();
+                      setToolbarPosition({
+                        x: rect.left + window.scrollX - 50,
+                        y: rect.top + window.scrollY - 50
+                      });
+                    }
+                  }
+                }, 0);
+              },
+              onBlur: () => {
+                setTimeout(() => setShowToolbar(false), 200);
+              }
+            }}
           />
         );
       
       case 'heading3':
         return (
-          <input
-            ref={inputRef as React.RefObject<HTMLInputElement>}
-            type="text"
-            value={block.content}
-            onChange={(e) => updateContent(e.target.value)}
-            onKeyDown={handleKeyDown}
-            className={cn(baseClasses, "text-xl font-medium text-foreground", getStyleClasses())}
-            placeholder="Heading 3"
-            {...commonProps}
+          <div
+            ref={inputRef as React.RefObject<HTMLDivElement>}
+            contentEditable
+            suppressContentEditableWarning
+            onInput={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              const target = e.target as HTMLDivElement;
+              updateContent(target.innerHTML);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                e.stopPropagation();
+                onAddBlock(index + 1, 'text');
+              } else if (e.key === 'Backspace' && (e.target as HTMLDivElement).innerHTML === '') {
+                e.preventDefault();
+                e.stopPropagation();
+                onDelete(index);
+              }
+            }}
+            className={cn(baseClasses, "text-xl font-medium text-foreground min-h-[32px] outline-none border border-transparent focus:border-border rounded p-2", getStyleClasses())}
+            dangerouslySetInnerHTML={{ __html: block.content || '' }}
+            data-placeholder="Heading 3"
+            {...{
+              onMouseUp: () => {
+                setTimeout(() => {
+                  const selection = window.getSelection();
+                  if (selection && selection.rangeCount > 0) {
+                    const range = selection.getRangeAt(0);
+                    const hasSelection = !range.collapsed;
+                    setShowToolbar(hasSelection);
+                    if (hasSelection) {
+                      const rect = range.getBoundingClientRect();
+                      setToolbarPosition({
+                        x: rect.left + window.scrollX - 50,
+                        y: rect.top + window.scrollY - 50
+                      });
+                    }
+                  }
+                }, 0);
+              },
+              onKeyUp: () => {
+                setTimeout(() => {
+                  const selection = window.getSelection();
+                  if (selection && selection.rangeCount > 0) {
+                    const range = selection.getRangeAt(0);
+                    const hasSelection = !range.collapsed;
+                    setShowToolbar(hasSelection);
+                    if (hasSelection) {
+                      const rect = range.getBoundingClientRect();
+                      setToolbarPosition({
+                        x: rect.left + window.scrollX - 50,
+                        y: rect.top + window.scrollY - 50
+                      });
+                    }
+                  }
+                }, 0);
+              },
+              onBlur: () => {
+                setTimeout(() => setShowToolbar(false), 200);
+              }
+            }}
           />
         );
       
@@ -733,19 +830,23 @@ export const EditorBlock = ({
               ref={inputRef as React.RefObject<HTMLDivElement>}
               contentEditable
               suppressContentEditableWarning
-              onInput={(e) => {
-                const target = e.target as HTMLDivElement;
-                updateContent(target.innerHTML);
-              }}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  onAddBlock(index + 1, 'text');
-                } else if (e.key === 'Backspace' && (e.target as HTMLDivElement).innerHTML === '') {
-                  e.preventDefault();
-                  onDelete(index);
-                }
-              }}
+            onInput={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              const target = e.target as HTMLDivElement;
+              updateContent(target.innerHTML);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                e.stopPropagation();
+                onAddBlock(index + 1, 'text');
+              } else if (e.key === 'Backspace' && (e.target as HTMLDivElement).innerHTML === '') {
+                e.preventDefault();
+                e.stopPropagation();
+                onDelete(index);
+              }
+            }}
               className={cn(
                 baseClasses, 
                 "text-foreground min-h-[24px] outline-none border border-transparent focus:border-border rounded p-2",
