@@ -104,6 +104,11 @@
   [contenteditable] a {
     color: hsl(var(--primary));
     text-decoration: underline;
+    cursor: pointer;
+  }
+
+  [contenteditable] a:hover {
+    opacity: 0.8;
   }
 
   /* Prose styles for preview */
@@ -126,5 +131,10 @@
   .prose a {
     color: hsl(var(--primary));
     text-decoration: underline;
+    cursor: pointer;
+  }
+
+  .prose a:hover {
+    opacity: 0.8;
   }
 }
