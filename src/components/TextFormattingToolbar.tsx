@@ -11,10 +11,12 @@ import {
   Palette,
   Highlighter,
   Link,
-  MessageSquare
+  MessageSquare,
+  X,
+  Check
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 
 interface TextFormattingToolbarProps {
@@ -29,37 +31,43 @@ interface SelectionPosition {
   visible: boolean;
 }
 
+// Paleta de cores completa organizada por tons
+const colorPalette = [
+  // Linha 1 - Tons básicos
+  ['#000000', '#333333', '#666666', '#999999', '#CCCCCC', '#FFFFFF', '#FF0000', '#00FF00'],
+  // Linha 2 - Tons quentes
+  ['#FF6B6B', '#FF8E53', '#FF6B35', '#F7931E', '#FFD93D', '#6BCF7F', '#4ECDC4', '#45B7D1'],
+  // Linha 3 - Tons frios
+  ['#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9', '#F8C471'],
+  // Linha 4 - Tons escuros
+  ['#2C3E50', '#34495E', '#7F8C8D', '#95A5A6', '#BDC3C7', '#ECF0F1', '#E74C3C', '#E67E22'],
+  // Linha 5 - Tons vibrantes
+  ['#F39C12', '#F1C40F', '#2ECC71', '#1ABC9C', '#3498DB', '#9B59B6', '#E91E63', '#FF5722'],
+  // Linha 6 - Tons pastéis
+  ['#FFB3BA', '#FFDFBA', '#FFFFBA', '#BAFFC9', '#BAE1FF', '#E6E6FA', '#FFE4E1', '#F0F8FF']
+];
+
 export const TextFormattingToolbar = ({ onFormat, visible, position = { x: 0, y: 0 } }: TextFormattingToolbarProps) => {
   const toolbarRef = useRef<HTMLDivElement>(null);
+  const [showColorPalette, setShowColorPalette] = useState(false);
+  const [showLinkDialog, setShowLinkDialog] = useState(false);
+  const [linkUrl, setLinkUrl] = useState('');
+  const [linkText, setLinkText] = useState('');
+  const [selectedText, setSelectedText] = useState('');
 
-  const colors = [
-    { name: 'Red', value: '#ef4444' },
-    { name: 'Orange', value: '#f97316' },
-    { name: 'Yellow', value: '#eab308' },
-    { name: 'Green', value: '#22c55e' },
-    { name: 'Blue', value: '#3b82f6' },
-    { name: 'Purple', value: '#a855f7' },
-    { name: 'Pink', value: '#ec4899' },
-    { name: 'Default', value: 'inherit' }
-  ];
-
-  const highlights = [
-    { name: 'Yellow', value: '#fef08a' },
-    { name: 'Green', value: '#bbf7d0' },
-    { name: 'Blue', value: '#bfdbfe' },
-    { name: 'Purple', value: '#e9d5ff' },
-    { name: 'Pink', value: '#fbcfe8' },
-    { name: 'Red', value: '#fecaca' },
-    { name: 'None', value: 'transparent' }
-  ];
-
+  // Captura o texto selecionado quando o toolbar aparece
   useEffect(() => {
-    // This toolbar is now controlled by parent component
-    // Position will be calculated relative to the active input/textarea
-  }, []);
+    if (visible) {
+      const selection = window.getSelection();
+      if (selection && !selection.isCollapsed) {
+        setSelectedText(selection.toString());
+        setLinkText(selection.toString());
+      }
+    }
+  }, [visible]);
 
   const applyFormat = (format: string, value?: string) => {
-    // Use execCommand for rich text formatting
+    // Use execCommand para formatação de rich text
     switch (format) {
       case 'bold':
         document.execCommand('bold', false);
@@ -76,14 +84,18 @@ export const TextFormattingToolbar = ({ onFormat, visible, position = { x: 0, y:
         }
         break;
       case 'link':
-        const selection = window.getSelection();
-        if (selection && !selection.isCollapsed && value) {
+        if (value) {
           document.execCommand('createLink', false, value);
         }
         break;
       default:
         onFormat(format, value);
     }
+  };
+
+  const handleColorSelect = (color: string) => {
+    applyFormat('color', color);
+    setShowColorPalette(false);
   };
 
   const handleLinkClick = () => {
@@ -93,10 +105,35 @@ export const TextFormattingToolbar = ({ onFormat, visible, position = { x: 0, y:
       return;
     }
     
-    const url = prompt('Digite o URL do link:');
-    if (url) {
-      applyFormat('link', url);
+    setSelectedText(selection.toString());
+    setLinkText(selection.toString());
+    setShowLinkDialog(true);
+  };
+
+  const handleLinkSubmit = () => {
+    if (linkUrl.trim()) {
+      // Valida se é uma URL válida
+      let validUrl = linkUrl.trim();
+      if (!validUrl.startsWith('http://') && !validUrl.startsWith('https://')) {
+        validUrl = 'https://' + validUrl;
+      }
+      
+      try {
+        new URL(validUrl);
+        applyFormat('link', validUrl);
+        setShowLinkDialog(false);
+        setLinkUrl('');
+        setLinkText('');
+      } catch (error) {
+        alert('Por favor, insira uma URL válida');
+      }
     }
+  };
+
+  const handleLinkCancel = () => {
+    setShowLinkDialog(false);
+    setLinkUrl('');
+    setLinkText('');
   };
 
   if (!visible) return null;
@@ -116,13 +153,13 @@ export const TextFormattingToolbar = ({ onFormat, visible, position = { x: 0, y:
         }}
       >
         <div className="flex items-center gap-1">
-          {/* Basic formatting */}
+          {/* Formatação básica */}
           <Button
             variant="ghost"
             size="sm"
             className="h-8 w-8 p-0"
             onClick={() => applyFormat('bold')}
-            title="Bold"
+            title="Negrito"
           >
             <Bold className="h-4 w-4" />
           </Button>
@@ -132,7 +169,7 @@ export const TextFormattingToolbar = ({ onFormat, visible, position = { x: 0, y:
             size="sm"
             className="h-8 w-8 p-0"
             onClick={() => applyFormat('italic')}
-            title="Italic"
+            title="Itálico"
           >
             <Italic className="h-4 w-4" />
           </Button>
@@ -142,56 +179,96 @@ export const TextFormattingToolbar = ({ onFormat, visible, position = { x: 0, y:
             size="sm"
             className="h-8 w-8 p-0"
             onClick={() => applyFormat('underline')}
-            title="Underline"
+            title="Sublinhado"
           >
             <Underline className="h-4 w-4" />
           </Button>
 
           <div className="h-6 w-px bg-border mx-1" />
 
-          {/* Font Color */}
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0"
-                title="Font Color"
-              >
-                <Palette className="h-4 w-4" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-3" side="bottom" align="start">
-              <div className="space-y-3">
-                <div className="text-sm font-medium">Escolha uma cor</div>
-                <div className="grid grid-cols-4 gap-2">
-                  {colors.map((color) => (
-                    <button
-                      key={color.name}
-                      className="w-8 h-8 rounded-md border-2 border-border hover:border-primary hover:scale-105 transition-all duration-200 flex items-center justify-center"
-                      style={{ backgroundColor: color.value === 'inherit' ? 'currentColor' : color.value }}
-                      onClick={() => applyFormat('color', color.value)}
-                      title={color.name}
+          {/* Botão de Cor do Texto */}
+          <div className="relative">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0"
+              onClick={() => setShowColorPalette(!showColorPalette)}
+              title="Cor do Texto"
+            >
+              <Palette className="h-4 w-4" />
+            </Button>
+
+            {/* Paleta de Cores */}
+            <AnimatePresence>
+              {showColorPalette && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9, y: -10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                  className="absolute top-10 left-0 z-60 bg-popover border border-border rounded-lg shadow-xl p-3 min-w-[240px]"
+                >
+                  <div className="space-y-2">
+                    <div className="text-sm font-medium text-foreground mb-3">Escolha uma cor</div>
+                    
+                    {/* Grid de cores */}
+                    <div className="space-y-1">
+                      {colorPalette.map((row, rowIndex) => (
+                        <div key={rowIndex} className="flex gap-1">
+                          {row.map((color) => (
+                            <button
+                              key={color}
+                              className="w-6 h-6 rounded border border-border hover:border-primary hover:scale-110 transition-all duration-200 shadow-sm"
+                              style={{ backgroundColor: color }}
+                              onClick={() => handleColorSelect(color)}
+                              title={color}
+                            />
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Seletor de cor personalizada */}
+                    <div className="pt-2 border-t border-border">
+                      <div className="text-xs text-muted-foreground mb-2">Cor personalizada:</div>
+                      <div className="flex gap-2">
+                        <input
+                          type="color"
+                          className="w-8 h-8 rounded border border-border cursor-pointer"
+                          onChange={(e) => handleColorSelect(e.target.value)}
+                          title="Escolher cor personalizada"
+                        />
+                        <input
+                          type="text"
+                          placeholder="#000000"
+                          className="flex-1 px-2 py-1 text-xs border border-border rounded bg-background text-foreground"
+                          onChange={(e) => {
+                            if (e.target.value.match(/^#[0-9A-Fa-f]{6}$/)) {
+                              handleColorSelect(e.target.value);
+                            }
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Botão fechar */}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full mt-2"
+                      onClick={() => setShowColorPalette(false)}
                     >
-                      {color.value === 'inherit' && <span className="text-xs">A</span>}
-                    </button>
-                  ))}
-                </div>
-                <div className="pt-2 border-t">
-                  <input
-                    type="color"
-                    className="w-full h-8 rounded border cursor-pointer"
-                    onChange={(e) => applyFormat('color', e.target.value)}
-                    title="Escolher cor personalizada"
-                  />
-                </div>
-              </div>
-            </PopoverContent>
-          </Popover>
+                      Fechar
+                    </Button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
 
           <div className="h-6 w-px bg-border mx-1" />
 
-          {/* Insert Link */}
+          {/* Botão de Link */}
           <Button
             variant="ghost"
             size="sm"
@@ -202,6 +279,108 @@ export const TextFormattingToolbar = ({ onFormat, visible, position = { x: 0, y:
             <Link className="h-4 w-4" />
           </Button>
         </div>
+
+        {/* Dialog de Link Moderno */}
+        <AnimatePresence>
+          {showLinkDialog && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
+              onClick={handleLinkCancel}
+            >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                transition={{ duration: 0.2 }}
+                className="bg-background border border-border rounded-xl shadow-2xl p-6 w-full max-w-md"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Header */}
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-foreground">Adicionar Link</h3>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0"
+                    onClick={handleLinkCancel}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+
+                {/* Texto selecionado */}
+                {selectedText && (
+                  <div className="mb-4 p-3 bg-muted rounded-lg">
+                    <div className="text-sm text-muted-foreground mb-1">Texto selecionado:</div>
+                    <div className="text-sm font-medium text-foreground">"{selectedText}"</div>
+                  </div>
+                )}
+
+                {/* Campos do formulário */}
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium text-foreground mb-2 block">
+                      URL do Link
+                    </label>
+                    <Input
+                      type="url"
+                      placeholder="https://exemplo.com"
+                      value={linkUrl}
+                      onChange={(e) => setLinkUrl(e.target.value)}
+                      className="w-full"
+                      autoFocus
+                    />
+                    <div className="text-xs text-muted-foreground mt-1">
+                      Digite a URL completa (com https://)
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-foreground mb-2 block">
+                      Texto do Link (opcional)
+                    </label>
+                    <Input
+                      type="text"
+                      placeholder="Texto que aparecerá como link"
+                      value={linkText}
+                      onChange={(e) => setLinkText(e.target.value)}
+                      className="w-full"
+                    />
+                  </div>
+                </div>
+
+                {/* Botões de ação */}
+                <div className="flex gap-3 mt-6">
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={handleLinkCancel}
+                  >
+                    Cancelar
+                  </Button>
+                  <Button
+                    className="flex-1"
+                    onClick={handleLinkSubmit}
+                    disabled={!linkUrl.trim()}
+                  >
+                    <Check className="w-4 h-4 mr-2" />
+                    Adicionar Link
+                  </Button>
+                </div>
+
+                {/* Dica de uso */}
+                <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                  <div className="text-xs text-blue-600 dark:text-blue-400">
+                    💡 <strong>Dica:</strong> Selecione o texto que deseja transformar em link antes de clicar no botão de link.
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.div>
     </AnimatePresence>
   );

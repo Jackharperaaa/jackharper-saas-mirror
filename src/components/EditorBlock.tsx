@@ -166,8 +166,8 @@ export const EditorBlock = ({
         }, 0);
       },
       onBlur: () => {
-        // Keep toolbar visible for a short time to allow clicking
-        setTimeout(() => setShowToolbar(false), 200);
+        // Keep toolbar visible for a longer time to allow color palette and link dialog interactions
+        setTimeout(() => setShowToolbar(false), 500);
       }
     };
     
