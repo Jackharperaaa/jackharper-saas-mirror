@@ -76,12 +76,26 @@ export const TextFormattingToolbar = ({ onFormat, visible, position = { x: 0, y:
         }
         break;
       case 'link':
-        if (value) {
+        const selection = window.getSelection();
+        if (selection && !selection.isCollapsed && value) {
           document.execCommand('createLink', false, value);
         }
         break;
       default:
         onFormat(format, value);
+    }
+  };
+
+  const handleLinkClick = () => {
+    const selection = window.getSelection();
+    if (!selection || selection.isCollapsed) {
+      alert('Selecione o texto que deseja transformar em link');
+      return;
+    }
+    
+    const url = prompt('Digite o URL do link:');
+    if (url) {
+      applyFormat('link', url);
     }
   };
 
@@ -169,11 +183,8 @@ export const TextFormattingToolbar = ({ onFormat, visible, position = { x: 0, y:
             variant="ghost"
             size="sm"
             className="h-8 w-8 p-0"
-            onClick={() => {
-              const url = prompt('Enter URL:');
-              if (url) applyFormat('link', url);
-            }}
-            title="Insert Link"
+            onClick={handleLinkClick}
+            title="Adicionar Link"
           >
             <Link className="h-4 w-4" />
           </Button>
