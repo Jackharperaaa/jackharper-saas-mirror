@@ -75,4 +75,56 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* ContentEditable placeholder styling */
+  [contenteditable]:empty:before {
+    content: attr(data-placeholder);
+    color: hsl(var(--muted-foreground));
+    pointer-events: none;
+    position: absolute;
+  }
+
+  /* Rich text editor styles */
+  [contenteditable] {
+    outline: none;
+  }
+
+  [contenteditable] b, [contenteditable] strong {
+    font-weight: bold;
+  }
+
+  [contenteditable] i, [contenteditable] em {
+    font-style: italic;
+  }
+
+  [contenteditable] u {
+    text-decoration: underline;
+  }
+
+  [contenteditable] a {
+    color: hsl(var(--primary));
+    text-decoration: underline;
+  }
+
+  /* Prose styles for preview */
+  .prose {
+    line-height: 1.6;
+  }
+
+  .prose b, .prose strong {
+    font-weight: bold;
+  }
+
+  .prose i, .prose em {
+    font-style: italic;
+  }
+
+  .prose u {
+    text-decoration: underline;
+  }
+
+  .prose a {
+    color: hsl(var(--primary));
+    text-decoration: underline;
+  }
 }

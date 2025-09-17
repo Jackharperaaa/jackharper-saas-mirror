@@ -59,7 +59,30 @@ export const TextFormattingToolbar = ({ onFormat, visible, position = { x: 0, y:
   }, []);
 
   const applyFormat = (format: string, value?: string) => {
-    onFormat(format, value);
+    // Use execCommand for rich text formatting
+    switch (format) {
+      case 'bold':
+        document.execCommand('bold', false);
+        break;
+      case 'italic':
+        document.execCommand('italic', false);
+        break;
+      case 'underline':
+        document.execCommand('underline', false);
+        break;
+      case 'color':
+        if (value) {
+          document.execCommand('foreColor', false, value);
+        }
+        break;
+      case 'link':
+        if (value) {
+          document.execCommand('createLink', false, value);
+        }
+        break;
+      default:
+        onFormat(format, value);
+    }
   };
 
   if (!visible) return null;

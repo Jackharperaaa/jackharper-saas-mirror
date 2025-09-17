@@ -728,15 +728,87 @@ export const EditorBlock = ({
       
       default:
         return (
-          <textarea
-            ref={inputRef as React.RefObject<HTMLTextAreaElement>}
-            value={block.content}
-            onChange={(e) => updateContent(e.target.value)}
-            onKeyDown={handleKeyDown}
-            className={cn(baseClasses, "text-foreground min-h-[24px]", getStyleClasses())}
-            placeholder="Type something..."
-            {...commonProps}
-          />
+          <div className="space-y-2">
+            <div
+              ref={inputRef as React.RefObject<HTMLDivElement>}
+              contentEditable
+              suppressContentEditableWarning
+              onInput={(e) => {
+                const target = e.target as HTMLDivElement;
+                updateContent(target.innerHTML);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  onAddBlock(index + 1, 'text');
+                } else if (e.key === 'Backspace' && (e.target as HTMLDivElement).innerHTML === '') {
+                  e.preventDefault();
+                  onDelete(index);
+                }
+              }}
+              className={cn(
+                baseClasses, 
+                "text-foreground min-h-[24px] outline-none border border-transparent focus:border-border rounded p-2",
+                getStyleClasses()
+              )}
+              dangerouslySetInnerHTML={{ __html: block.content || '' }}
+              data-placeholder="Type something..."
+              style={{
+                minHeight: '24px',
+                wordWrap: 'break-word',
+                whiteSpace: 'pre-wrap'
+              }}
+              {...{
+                onMouseUp: () => {
+                  setTimeout(() => {
+                    const selection = window.getSelection();
+                    if (selection && selection.rangeCount > 0) {
+                      const range = selection.getRangeAt(0);
+                      const hasSelection = !range.collapsed;
+                      setShowToolbar(hasSelection);
+                      if (hasSelection) {
+                        const rect = range.getBoundingClientRect();
+                        setToolbarPosition({
+                          x: rect.left + window.scrollX - 50,
+                          y: rect.top + window.scrollY - 50
+                        });
+                      }
+                    }
+                  }, 0);
+                },
+                onKeyUp: () => {
+                  setTimeout(() => {
+                    const selection = window.getSelection();
+                    if (selection && selection.rangeCount > 0) {
+                      const range = selection.getRangeAt(0);
+                      const hasSelection = !range.collapsed;
+                      setShowToolbar(hasSelection);
+                      if (hasSelection) {
+                        const rect = range.getBoundingClientRect();
+                        setToolbarPosition({
+                          x: rect.left + window.scrollX - 50,
+                          y: rect.top + window.scrollY - 50
+                        });
+                      }
+                    }
+                  }, 0);
+                },
+                onBlur: () => {
+                  setTimeout(() => setShowToolbar(false), 200);
+                }
+              }}
+            />
+            {/* Preview Area */}
+            {block.content && (
+              <div className="p-3 bg-muted/30 rounded-md border border-muted">
+                <div className="text-xs text-muted-foreground mb-2">Preview:</div>
+                <div 
+                  className="text-sm prose prose-sm max-w-none"
+                  dangerouslySetInnerHTML={{ __html: block.content }}
+                />
+              </div>
+            )}
+          </div>
         );
     }
   };
