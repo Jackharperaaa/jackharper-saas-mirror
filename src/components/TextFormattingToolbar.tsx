@@ -290,8 +290,18 @@ export const TextFormattingToolbar = ({ onFormat, visible, position = { x: 0, y:
                   exit={{ opacity: 0, scale: 0.9, y: -10 }}
                   transition={{ duration: 0.2 }}
                   className="absolute top-10 left-0 z-60 bg-popover border border-border rounded-xl shadow-2xl p-4 w-[300px]"
-                  onMouseDown={(e) => e.stopPropagation()}
-                  onClick={(e) => e.stopPropagation()}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
+                  onMouseUp={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
                 >
                   {/* Header with close button */}
                   <div className="flex items-center justify-between mb-4">
@@ -317,7 +327,11 @@ export const TextFormattingToolbar = ({ onFormat, visible, position = { x: 0, y:
                       style={{
                         background: `linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, hsl(${currentHue}, 100%, 50%))`
                       }}
-                      onClick={handleGradientClick}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleGradientClick(e);
+                      }}
                     >
                       {/* Crosshair indicator */}
                       <div
@@ -336,7 +350,11 @@ export const TextFormattingToolbar = ({ onFormat, visible, position = { x: 0, y:
                       style={{
                         background: 'linear-gradient(to bottom, #ff0000 0%, #ffff00 17%, #00ff00 33%, #00ffff 50%, #0000ff 67%, #ff00ff 83%, #ff0000 100%)'
                       }}
-                      onClick={handleHueClick}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleHueClick(e);
+                      }}
                     >
                       {/* Hue indicator */}
                       <div
@@ -366,7 +384,10 @@ export const TextFormattingToolbar = ({ onFormat, visible, position = { x: 0, y:
                     <input
                       type="text"
                       value={selectedColor}
+                      onFocus={(e) => e.stopPropagation()}
+                      onBlur={(e) => e.stopPropagation()}
                       onChange={(e) => {
+                        e.stopPropagation();
                         const value = e.target.value;
                         if (value.match(/^#[0-9A-Fa-f]{0,6}$/)) {
                           setSelectedColor(value);
@@ -409,8 +430,17 @@ export const TextFormattingToolbar = ({ onFormat, visible, position = { x: 0, y:
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
-              onMouseDown={(e) => e.stopPropagation()}
-              onClick={(e) => e.stopPropagation()}
+              onMouseDown={(e) => {
+                // Only close if clicking on the backdrop, not the dialog
+                if (e.target === e.currentTarget) {
+                  handleLinkCancel();
+                }
+              }}
+              onClick={(e) => {
+                if (e.target === e.currentTarget) {
+                  handleLinkCancel();
+                }
+              }}
             >
               <motion.div
                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -418,7 +448,18 @@ export const TextFormattingToolbar = ({ onFormat, visible, position = { x: 0, y:
                 exit={{ opacity: 0, scale: 0.9, y: 20 }}
                 transition={{ duration: 0.2 }}
                 className="bg-background border border-border rounded-xl shadow-2xl p-6 w-full max-w-md"
-                onClick={(e) => e.stopPropagation()}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+                onMouseUp={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
               >
                 {/* Header */}
                 <div className="flex items-center justify-between mb-4">
@@ -454,7 +495,19 @@ export const TextFormattingToolbar = ({ onFormat, visible, position = { x: 0, y:
                       type="url"
                       placeholder="https://exemplo.com"
                       value={linkUrl}
+                      onFocus={(e) => e.stopPropagation()}
+                      onBlur={(e) => e.stopPropagation()}
                       onChange={(e) => setLinkUrl(e.target.value)}
+                      onKeyDown={(e) => {
+                        e.stopPropagation();
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleLinkSubmit();
+                        } else if (e.key === 'Escape') {
+                          e.preventDefault();
+                          handleLinkCancel();
+                        }
+                      }}
                       className="w-full"
                       autoFocus
                     />
@@ -471,7 +524,19 @@ export const TextFormattingToolbar = ({ onFormat, visible, position = { x: 0, y:
                       type="text"
                       placeholder="Texto que aparecerá como link"
                       value={linkText}
+                      onFocus={(e) => e.stopPropagation()}
+                      onBlur={(e) => e.stopPropagation()}
                       onChange={(e) => setLinkText(e.target.value)}
+                      onKeyDown={(e) => {
+                        e.stopPropagation();
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleLinkSubmit();
+                        } else if (e.key === 'Escape') {
+                          e.preventDefault();
+                          handleLinkCancel();
+                        }
+                      }}
                       className="w-full"
                     />
                   </div>
