@@ -271,12 +271,14 @@ export const TextFormattingToolbar = ({ onFormat, visible, position = { x: 0, y:
             <Button
               variant="ghost"
               size="sm"
-              className="h-8 w-8 p-0 relative overflow-hidden group"
-              onClick={() => setShowColorPalette(!showColorPalette)}
+              className="h-8 w-8 p-0"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowColorPalette(!showColorPalette);
+              }}
               title="Seletor de Cores Avançado"
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 opacity-20 group-hover:opacity-40 transition-opacity duration-200 rounded" />
-              <Palette className="h-4 w-4 relative z-10" />
+              <Palette className="h-4 w-4" />
             </Button>
 
             {/* Photoshop-Style Color Picker */}
@@ -288,6 +290,7 @@ export const TextFormattingToolbar = ({ onFormat, visible, position = { x: 0, y:
                   exit={{ opacity: 0, scale: 0.9, y: -10 }}
                   transition={{ duration: 0.2 }}
                   className="absolute top-10 left-0 z-60 bg-popover border border-border rounded-xl shadow-2xl p-4 w-[300px]"
+                  onMouseDown={(e) => e.stopPropagation()}
                   onClick={(e) => e.stopPropagation()}
                 >
                   {/* Header with close button */}
@@ -297,7 +300,10 @@ export const TextFormattingToolbar = ({ onFormat, visible, position = { x: 0, y:
                       variant="ghost"
                       size="sm"
                       className="h-6 w-6 p-0"
-                      onClick={() => setShowColorPalette(false)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowColorPalette(false);
+                      }}
                     >
                       <X className="h-4 w-4" />
                     </Button>
@@ -385,7 +391,10 @@ export const TextFormattingToolbar = ({ onFormat, visible, position = { x: 0, y:
             variant="ghost"
             size="sm"
             className="h-8 w-8 p-0"
-            onClick={handleLinkClick}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleLinkClick();
+            }}
             title="Adicionar Link"
           >
             <Link className="h-4 w-4" />
@@ -400,6 +409,8 @@ export const TextFormattingToolbar = ({ onFormat, visible, position = { x: 0, y:
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
+              onMouseDown={(e) => e.stopPropagation()}
+              onClick={(e) => e.stopPropagation()}
             >
               <motion.div
                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -416,7 +427,10 @@ export const TextFormattingToolbar = ({ onFormat, visible, position = { x: 0, y:
                     variant="ghost"
                     size="sm"
                     className="h-8 w-8 p-0"
-                    onClick={handleLinkCancel}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleLinkCancel();
+                    }}
                   >
                     <X className="h-4 w-4" />
                   </Button>
