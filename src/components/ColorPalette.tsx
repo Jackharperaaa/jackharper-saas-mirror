@@ -46,6 +46,18 @@ export const ColorPalette = ({ onColorSelect, onClose, isVisible }: ColorPalette
       exit={{ opacity: 0, scale: 0.9, y: -10 }}
       transition={{ duration: 0.2 }}
       className="absolute top-10 left-0 z-60 bg-popover border border-border rounded-lg shadow-xl p-4 min-w-[280px] max-w-[320px]"
+      onMouseDown={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}
+      onMouseUp={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}
     >
       <div className="space-y-3">
         <div className="text-sm font-medium text-foreground">Escolha uma cor</div>
@@ -61,7 +73,11 @@ export const ColorPalette = ({ onColorSelect, onClose, isVisible }: ColorPalette
                     key={color}
                     className="w-6 h-6 rounded border border-border hover:border-primary hover:scale-110 transition-all duration-200 shadow-sm"
                     style={{ backgroundColor: color }}
-                    onClick={() => onColorSelect(color)}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      onColorSelect(color);
+                    }}
                     title={color}
                   />
                 ))}
@@ -77,14 +93,22 @@ export const ColorPalette = ({ onColorSelect, onClose, isVisible }: ColorPalette
             <input
               type="color"
               className="w-8 h-8 rounded border border-border cursor-pointer"
-              onChange={(e) => onColorSelect(e.target.value)}
+              onChange={(e) => {
+                e.stopPropagation();
+                onColorSelect(e.target.value);
+              }}
+              onFocus={(e) => e.stopPropagation()}
+              onBlur={(e) => e.stopPropagation()}
               title="Escolher cor personalizada"
             />
             <input
               type="text"
               placeholder="#000000"
               className="flex-1 px-2 py-1 text-xs border border-border rounded bg-background text-foreground"
+              onFocus={(e) => e.stopPropagation()}
+              onBlur={(e) => e.stopPropagation()}
               onChange={(e) => {
+                e.stopPropagation();
                 if (e.target.value.match(/^#[0-9A-Fa-f]{6}$/)) {
                   onColorSelect(e.target.value);
                 }
@@ -98,7 +122,11 @@ export const ColorPalette = ({ onColorSelect, onClose, isVisible }: ColorPalette
           variant="ghost"
           size="sm"
           className="w-full"
-          onClick={onClose}
+          onMouseDown={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onClose();
+          }}
         >
           Fechar
         </Button>

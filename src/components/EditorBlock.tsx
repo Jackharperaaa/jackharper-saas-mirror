@@ -234,7 +234,8 @@ export const EditorBlock = ({
                 }, 0);
               },
               onBlur: () => {
-                setTimeout(() => setShowToolbar(false), 500);
+                // Increase timeout to allow interaction with toolbar elements
+                setTimeout(() => setShowToolbar(false), 1000);
               }
             }}
           />
@@ -302,7 +303,8 @@ export const EditorBlock = ({
                 }, 0);
               },
               onBlur: () => {
-                setTimeout(() => setShowToolbar(false), 500);
+                // Increase timeout to allow interaction with toolbar elements  
+                setTimeout(() => setShowToolbar(false), 1000);
               }
             }}
           />
@@ -370,7 +372,8 @@ export const EditorBlock = ({
                 }, 0);
               },
               onBlur: () => {
-                setTimeout(() => setShowToolbar(false), 500);
+                // Increase timeout to allow interaction with toolbar elements
+                setTimeout(() => setShowToolbar(false), 1000);
               }
             }}
           />
@@ -895,7 +898,8 @@ export const EditorBlock = ({
                   }, 0);
                 },
                 onBlur: () => {
-                  setTimeout(() => setShowToolbar(false), 500);
+                  // Increase timeout to allow interaction with toolbar elements
+                  setTimeout(() => setShowToolbar(false), 1000);
                 }
               }}
             />
