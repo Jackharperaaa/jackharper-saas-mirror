@@ -31,29 +31,46 @@ interface SelectionPosition {
   visible: boolean;
 }
 
-// Photoshop-inspired comprehensive color palette
-const colorPalette = [
-  // Row 1 - Pure colors & white
-  ['#FFFFFF', '#000000', '#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF'],
-  // Row 2 - Red spectrum
-  ['#FF4444', '#FF6666', '#FF8888', '#FFAAAA', '#FFCCCC', '#FFEEEE', '#CC0000', '#990000'],
-  // Row 3 - Orange spectrum  
-  ['#FF4400', '#FF6622', '#FF8844', '#FFAA66', '#FFCC88', '#FFEEAA', '#CC3300', '#992200'],
-  // Row 4 - Yellow spectrum
-  ['#FFAA00', '#FFBB22', '#FFCC44', '#FFDD66', '#FFEE88', '#FFFFAA', '#CC8800', '#996600'],
-  // Row 5 - Green spectrum
-  ['#44FF44', '#66FF66', '#88FF88', '#AAFFAA', '#CCFFCC', '#EEFFEE', '#00CC00', '#009900'],
-  // Row 6 - Blue spectrum
-  ['#4444FF', '#6666FF', '#8888FF', '#AAAAFF', '#CCCCFF', '#EEEEFF', '#0000CC', '#000099'],
-  // Row 7 - Purple spectrum
-  ['#AA44FF', '#BB66FF', '#CC88FF', '#DDAAFF', '#EECCFF', '#FFEEFC', '#8800CC', '#660099'],
-  // Row 8 - Gray spectrum
-  ['#111111', '#333333', '#555555', '#777777', '#999999', '#BBBBBB', '#DDDDDD', '#F5F5F5'],
-  // Row 9 - Earth tones
-  ['#8B4513', '#A0522D', '#CD853F', '#DEB887', '#F4A460', '#D2B48C', '#BC8F8F', '#F5DEB3'],
-  // Row 10 - Vibrant palette
-  ['#FF1493', '#FF6347', '#FFD700', '#ADFF2F', '#00CED1', '#9370DB', '#FF4500', '#32CD32']
-];
+// Photoshop-style color picker state
+const [currentHue, setCurrentHue] = useState(0);
+const [currentSaturation, setSaturation] = useState(100);
+const [currentBrightness, setBrightness] = useState(100);
+const [selectedColor, setSelectedColor] = useState('#FF0000');
+
+// Convert HSB to RGB
+const hsbToRgb = (h: number, s: number, b: number) => {
+  s = s / 100;
+  b = b / 100;
+  const c = b * s;
+  const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+  const m = b - c;
+  let r = 0, g = 0, blue = 0;
+
+  if (0 <= h && h < 60) {
+    r = c; g = x; blue = 0;
+  } else if (60 <= h && h < 120) {
+    r = x; g = c; blue = 0;
+  } else if (120 <= h && h < 180) {
+    r = 0; g = c; blue = x;
+  } else if (180 <= h && h < 240) {
+    r = 0; g = x; blue = c;
+  } else if (240 <= h && h < 300) {
+    r = x; g = 0; blue = c;
+  } else if (300 <= h && h < 360) {
+    r = c; g = 0; blue = x;
+  }
+
+  return {
+    r: Math.round((r + m) * 255),
+    g: Math.round((g + m) * 255),
+    b: Math.round((blue + m) * 255)
+  };
+};
+
+// Convert RGB to Hex
+const rgbToHex = (r: number, g: number, b: number) => {
+  return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+};
 
 export const TextFormattingToolbar = ({ onFormat, visible, position = { x: 0, y: 0 } }: TextFormattingToolbarProps) => {
   const toolbarRef = useRef<HTMLDivElement>(null);
@@ -125,8 +142,39 @@ export const TextFormattingToolbar = ({ onFormat, visible, position = { x: 0, y:
         document.execCommand('foreColor', false, color);
       }
     }
+  };
+
+  // Handle gradient area click
+  const handleGradientClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const saturation = (x / rect.width) * 100;
+    const brightness = ((rect.height - y) / rect.height) * 100;
     
-    setShowColorPalette(false);
+    setSaturation(saturation);
+    setBrightness(brightness);
+    
+    const rgb = hsbToRgb(currentHue, saturation, brightness);
+    const hex = rgbToHex(rgb.r, rgb.g, rgb.b);
+    setSelectedColor(hex);
+    handleColorSelect(hex);
+  };
+
+  // Handle hue slider click
+  const handleHueClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    const rect = e.currentTarget.getBoundingClientRect();
+    const y = e.clientY - rect.top;
+    const hue = (y / rect.height) * 360;
+    
+    setCurrentHue(hue);
+    
+    const rgb = hsbToRgb(hue, currentSaturation, currentBrightness);
+    const hex = rgbToHex(rgb.r, rgb.g, rgb.b);
+    setSelectedColor(hex);
+    handleColorSelect(hex);
   };
 
   const handleLinkClick = () => {
@@ -230,7 +278,7 @@ export const TextFormattingToolbar = ({ onFormat, visible, position = { x: 0, y:
               <Palette className="h-4 w-4 relative z-10" />
             </Button>
 
-            {/* Paleta de Cores */}
+            {/* Photoshop-Style Color Picker */}
             <AnimatePresence>
               {showColorPalette && (
                 <motion.div
@@ -238,65 +286,91 @@ export const TextFormattingToolbar = ({ onFormat, visible, position = { x: 0, y:
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.9, y: -10 }}
                   transition={{ duration: 0.2 }}
-                  className="absolute top-10 left-0 z-60 bg-popover border border-border rounded-xl shadow-2xl p-4 min-w-[320px] max-h-[400px] overflow-y-auto"
+                  className="absolute top-10 left-0 z-60 bg-popover border border-border rounded-xl shadow-2xl p-4 w-[300px]"
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2 mb-4">
-                      <div className="w-6 h-6 bg-gradient-to-br from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 rounded-md shadow-md" />
-                      <div className="text-sm font-semibold text-foreground">Paleta de Cores Avançada</div>
-                    </div>
-                    
-                    {/* Comprehensive Color Grid */}
-                    <div className="space-y-2">
-                      {colorPalette.map((row, rowIndex) => (
-                        <div key={rowIndex} className="flex gap-1 justify-center">
-                          {row.map((color) => (
-                            <button
-                              key={color}
-                              className="w-7 h-7 rounded-md border-2 border-border hover:border-primary hover:scale-110 transition-all duration-200 shadow-md relative group"
-                              style={{ backgroundColor: color }}
-                              onClick={() => handleColorSelect(color)}
-                              title={color}
-                            >
-                              <div className="absolute inset-0 rounded-md bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-                            </button>
-                          ))}
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Seletor de cor personalizada */}
-                    <div className="pt-2 border-t border-border">
-                      <div className="text-xs text-muted-foreground mb-2">Cor personalizada:</div>
-                      <div className="flex gap-2">
-                        <input
-                          type="color"
-                          className="w-8 h-8 rounded border border-border cursor-pointer"
-                          onChange={(e) => handleColorSelect(e.target.value)}
-                          title="Escolher cor personalizada"
-                        />
-                        <input
-                          type="text"
-                          placeholder="#000000"
-                          className="flex-1 px-2 py-1 text-xs border border-border rounded bg-background text-foreground"
-                          onChange={(e) => {
-                            if (e.target.value.match(/^#[0-9A-Fa-f]{6}$/)) {
-                              handleColorSelect(e.target.value);
-                            }
-                          }}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Botão fechar */}
+                  {/* Header with close button */}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="text-sm font-semibold text-foreground">Seletor de Cores</div>
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="w-full mt-2"
+                      className="h-6 w-6 p-0"
                       onClick={() => setShowColorPalette(false)}
                     >
-                      Fechar
+                      <X className="h-4 w-4" />
                     </Button>
+                  </div>
+
+                  {/* Color picker area */}
+                  <div className="flex gap-3 mb-4">
+                    {/* Main gradient area */}
+                    <div
+                      className="relative w-48 h-32 cursor-crosshair rounded border border-border overflow-hidden"
+                      style={{
+                        background: `linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, hsl(${currentHue}, 100%, 50%))`
+                      }}
+                      onClick={handleGradientClick}
+                    >
+                      {/* Crosshair indicator */}
+                      <div
+                        className="absolute w-2 h-2 border border-white rounded-full transform -translate-x-1 -translate-y-1 pointer-events-none"
+                        style={{
+                          left: `${currentSaturation}%`,
+                          top: `${100 - currentBrightness}%`,
+                          boxShadow: '0 0 0 1px rgba(0,0,0,0.5)'
+                        }}
+                      />
+                    </div>
+
+                    {/* Hue slider */}
+                    <div
+                      className="relative w-4 h-32 cursor-pointer rounded border border-border overflow-hidden"
+                      style={{
+                        background: 'linear-gradient(to bottom, #ff0000 0%, #ffff00 17%, #00ff00 33%, #00ffff 50%, #0000ff 67%, #ff00ff 83%, #ff0000 100%)'
+                      }}
+                      onClick={handleHueClick}
+                    >
+                      {/* Hue indicator */}
+                      <div
+                        className="absolute w-full h-1 border-t border-b border-white pointer-events-none"
+                        style={{
+                          top: `${(currentHue / 360) * 100}%`,
+                          boxShadow: '0 0 0 1px rgba(0,0,0,0.5)'
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Color preview */}
+                  <div className="flex gap-2 mb-3">
+                    <div className="flex-1">
+                      <div className="text-xs text-muted-foreground mb-1">Nova cor:</div>
+                      <div
+                        className="w-full h-8 rounded border border-border"
+                        style={{ backgroundColor: selectedColor }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Hex input */}
+                  <div className="mb-3">
+                    <div className="text-xs text-muted-foreground mb-1">Código hex:</div>
+                    <input
+                      type="text"
+                      value={selectedColor}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value.match(/^#[0-9A-Fa-f]{0,6}$/)) {
+                          setSelectedColor(value);
+                          if (value.length === 7) {
+                            handleColorSelect(value);
+                          }
+                        }
+                      }}
+                      className="w-full px-2 py-1 text-sm border border-border rounded bg-background text-foreground"
+                      placeholder="#000000"
+                    />
                   </div>
                 </motion.div>
               )}
@@ -325,7 +399,6 @@ export const TextFormattingToolbar = ({ onFormat, visible, position = { x: 0, y:
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
-              onClick={handleLinkCancel}
             >
               <motion.div
                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
