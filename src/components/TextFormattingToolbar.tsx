@@ -31,11 +31,6 @@ interface SelectionPosition {
   visible: boolean;
 }
 
-// Photoshop-style color picker state
-const [currentHue, setCurrentHue] = useState(0);
-const [currentSaturation, setSaturation] = useState(100);
-const [currentBrightness, setBrightness] = useState(100);
-const [selectedColor, setSelectedColor] = useState('#FF0000');
 
 // Convert HSB to RGB
 const hsbToRgb = (h: number, s: number, b: number) => {
@@ -79,6 +74,12 @@ export const TextFormattingToolbar = ({ onFormat, visible, position = { x: 0, y:
   const [linkUrl, setLinkUrl] = useState('');
   const [linkText, setLinkText] = useState('');
   const [selectedText, setSelectedText] = useState('');
+  
+  // Photoshop-style color picker state
+  const [currentHue, setCurrentHue] = useState(0);
+  const [currentSaturation, setSaturation] = useState(100);
+  const [currentBrightness, setBrightness] = useState(100);
+  const [selectedColor, setSelectedColor] = useState('#FF0000');
 
   // Captura o texto selecionado quando o toolbar aparece
   useEffect(() => {
