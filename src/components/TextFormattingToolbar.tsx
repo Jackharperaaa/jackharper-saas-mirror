@@ -327,11 +327,7 @@ export const TextFormattingToolbar = ({ onFormat, visible, position = { x: 0, y:
                       style={{
                         background: `linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, hsl(${currentHue}, 100%, 50%))`
                       }}
-                      onMouseDown={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        handleGradientClick(e);
-                      }}
+                      onClick={handleGradientClick}
                     >
                       {/* Crosshair indicator */}
                       <div
@@ -350,11 +346,7 @@ export const TextFormattingToolbar = ({ onFormat, visible, position = { x: 0, y:
                       style={{
                         background: 'linear-gradient(to bottom, #ff0000 0%, #ffff00 17%, #00ff00 33%, #00ffff 50%, #0000ff 67%, #ff00ff 83%, #ff0000 100%)'
                       }}
-                      onMouseDown={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        handleHueClick(e);
-                      }}
+                      onClick={handleHueClick}
                     >
                       {/* Hue indicator */}
                       <div
@@ -384,10 +376,7 @@ export const TextFormattingToolbar = ({ onFormat, visible, position = { x: 0, y:
                     <input
                       type="text"
                       value={selectedColor}
-                      onFocus={(e) => e.stopPropagation()}
-                      onBlur={(e) => e.stopPropagation()}
                       onChange={(e) => {
-                        e.stopPropagation();
                         const value = e.target.value;
                         if (value.match(/^#[0-9A-Fa-f]{0,6}$/)) {
                           setSelectedColor(value);
@@ -412,10 +401,7 @@ export const TextFormattingToolbar = ({ onFormat, visible, position = { x: 0, y:
             variant="ghost"
             size="sm"
             className="h-8 w-8 p-0"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleLinkClick();
-            }}
+            onClick={handleLinkClick}
             title="Adicionar Link"
           >
             <Link className="h-4 w-4" />
@@ -430,12 +416,6 @@ export const TextFormattingToolbar = ({ onFormat, visible, position = { x: 0, y:
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4"
-              onMouseDown={(e) => {
-                // Only close if clicking on the backdrop, not the dialog
-                if (e.target === e.currentTarget) {
-                  handleLinkCancel();
-                }
-              }}
               onClick={(e) => {
                 if (e.target === e.currentTarget) {
                   handleLinkCancel();
@@ -444,35 +424,8 @@ export const TextFormattingToolbar = ({ onFormat, visible, position = { x: 0, y:
             >
               <motion.div
                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                transition={{ duration: 0.2 }}
-                className="bg-background border border-border rounded-xl shadow-2xl p-6 w-full max-w-md"
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                }}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                }}
-                onMouseUp={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                }}
-              >
-                {/* Header */}
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-foreground">Adicionar Link</h3>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 p-0"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleLinkCancel();
-                    }}
-                  >
+                    onClick={handleLinkCancel}
+                onClick={(e) => e.stopPropagation()}
                     <X className="h-4 w-4" />
                   </Button>
                 </div>
@@ -495,11 +448,8 @@ export const TextFormattingToolbar = ({ onFormat, visible, position = { x: 0, y:
                       type="url"
                       placeholder="https://exemplo.com"
                       value={linkUrl}
-                      onFocus={(e) => e.stopPropagation()}
-                      onBlur={(e) => e.stopPropagation()}
                       onChange={(e) => setLinkUrl(e.target.value)}
                       onKeyDown={(e) => {
-                        e.stopPropagation();
                         if (e.key === 'Enter') {
                           e.preventDefault();
                           handleLinkSubmit();
@@ -524,11 +474,8 @@ export const TextFormattingToolbar = ({ onFormat, visible, position = { x: 0, y:
                       type="text"
                       placeholder="Texto que aparecerá como link"
                       value={linkText}
-                      onFocus={(e) => e.stopPropagation()}
-                      onBlur={(e) => e.stopPropagation()}
                       onChange={(e) => setLinkText(e.target.value)}
                       onKeyDown={(e) => {
-                        e.stopPropagation();
                         if (e.key === 'Enter') {
                           e.preventDefault();
                           handleLinkSubmit();
